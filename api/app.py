@@ -3,9 +3,11 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from urllib.parse import parse_qs
-from flask import Flask, request, send_file, render_template
+from flask import Flask, request, send_file, render_template, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 def sender_email(objeto): 
     try:
@@ -47,17 +49,16 @@ def send_mail():
     objeto = request.get_data().decode('utf-8')
     objeto = parse_qs(objeto)
     objeto = json.dumps(objeto)
-
     try:
         result = sender_email(objeto)
         if result == "E-mail enviado":
-            response = {"success": True, "message": "E-mail enviado com sucesso", "resultado": result}
+            return jsonify({"success": True, "message": "E-mail enviado com sucesso", "resultado": result})
         else:
-            response = {"success": False, "message": result, "resultado": result}
+            return jsonify({"success": False, "message": result, "resultado": result})
     except Exception as e:
-        response = {"success": False, "message": "Erro ao converter os dados."}
+        return jsonify({"success": False, "message": f"Erro ao converter os dados: {str(e)}"})
 
-    return json.dumps(response)
+    return "Ok "
 
 @app.route("/")
 def index():
@@ -97,3 +98,5 @@ def index():
         </body>
     </html>
     """
+# if __name__ == '__main__': 
+#     app.run(port=5000, host='localhost', debug=True)
