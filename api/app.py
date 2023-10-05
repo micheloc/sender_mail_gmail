@@ -98,5 +98,6 @@ def index():
         </body>
     </html>
     """
-# if __name__ == '__main__': 
-#     app.run(port=5000, host='localhost', debug=True)
+if __name__ == '__main__': 
+    app.run()
+#  app.run(port=5000, host='localhost', debug=True)
