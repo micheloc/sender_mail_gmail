@@ -73,3 +73,6 @@ def send_mail():
 @cross_origin()
 def index():
     return "Olá"
+
+
+    # 52.316.802.0001-09 
