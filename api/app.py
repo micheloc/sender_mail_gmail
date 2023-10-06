@@ -4,10 +4,19 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from urllib.parse import parse_qs
 from flask import Flask, request, send_file, render_template, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
+
 
 app = Flask(__name__)
 CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
+# Função para configurar manualmente o CORS
+def configure_cors(response):
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+    return response
 
 def sender_email(objeto): 
     try:
@@ -44,7 +53,7 @@ def sender_email(objeto):
     except Exception as e:
         return str(e)
 
-@app.route("/send_email", methods=['POST'])
+@app.route("/send_email", methods=['POST', 'OPTIONS'])
 def send_mail():
     objeto = request.get_data().decode('utf-8')
     objeto = parse_qs(objeto)
@@ -52,51 +61,15 @@ def send_mail():
     try:
         result = sender_email(objeto)
         if result == "E-mail enviado":
-            return jsonify({"success": True, "message": "E-mail enviado com sucesso", "resultado": result})
+            return configure_cors(jsonify({"success": True, "message": "E-mail enviado com sucesso", "resultado": result}))
         else:
-            return jsonify({"success": False, "message": result, "resultado": result})
+            return configure_cors(jsonify({"success": False, "message": result, "resultado": result}))
     except Exception as e:
-        return jsonify({"success": False, "message": f"Erro ao converter os dados: {str(e)}"})
+        return configure_cors(jsonify({"success": False, "message": f"Erro ao converter os dados: {str(e)}"}))
 
     return "Ok "
 
 @app.route("/")
+@cross_origin()
 def index():
-    return """
-    <html>
-        <head>
-            <title>Minha Página Inicial</title>
-            <style>
-                body {
-                    background-color: #f5f5f5;
-                    color: #333;
-                    font-family: Arial, sans-serif;
-                    overflow: none; 
-                }
-
-                .container {
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                }
-
-                h1 {
-                    color: #ff9900;
-                }
-
-                p {
-                    font-size: 18px;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>Welcome</h1>
-            </div>
-        </body>
-    </html>
-    """
-
-#  app.run(port=5000, host='localhost', debug=True)
+    return "Olá"
